@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: supermarket-checkout
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/supermarket_checkout
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+
+server:
+  port: 8080
+  error:
+    include-message: always
+
+logging:
+  level:
+    com.haiilo.checkout: DEBUG
+    org.springframework.web: INFO
