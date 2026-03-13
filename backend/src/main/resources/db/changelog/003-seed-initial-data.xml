@@ -6,7 +6,7 @@
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
     <changeSet id="003-seed-initial-data" author="moiz.ahmad">
-        <!-- Items from the exercise pricing table -->
+        <!-- items from the exercise pricing table -->
         <insert tableName="items">
             <column name="name" value="Apple"/>
             <column name="unit_price" value="30.00"/>
@@ -32,7 +32,7 @@
             <column name="updated_at" valueDate="now()"/>
         </insert>
 
-        <!-- Special offers: Apple 2 for 45, Banana 3 for 130 -->
+        <!-- special offers: Apple 2 for 45, Banana 3 for 130 -->
         <insert tableName="special_offers">
             <column name="item_id" valueComputed="(SELECT id FROM items WHERE name = 'Apple')"/>
             <column name="quantity_required" value="2"/>
