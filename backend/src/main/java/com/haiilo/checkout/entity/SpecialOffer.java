@@ -5,10 +5,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-/**
- * Represents a "N for X price" special offer tied to a specific item.
- * Example: "2 for 45" means every 2 units of the item cost 45 instead of 2 * unitPrice.
- */
+
 @Entity
 @Table(name = "special_offers")
 @Getter
@@ -26,11 +23,9 @@ public class SpecialOffer {
     @JoinColumn(name = "item_id", nullable = false, unique = true)
     private Item item;
 
-    /** How many units must be purchased to trigger the offer. */
     @Column(name = "quantity_required", nullable = false)
     private Integer quantityRequired;
 
-    /** The total price for `quantityRequired` units under this offer. */
     @Column(name = "offer_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal offerPrice;
 
