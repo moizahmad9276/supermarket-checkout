@@ -29,7 +29,8 @@ public final class CheckoutDtos {
     public record SpecialOfferResponse(
         Long id,
         Integer quantityRequired,
-        BigDecimal offerPrice
+        BigDecimal offerPrice,
+        Instant validUntil
     ) {}
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -44,18 +45,18 @@ public final class CheckoutDtos {
 
     //checkout dtos
 
-    /** for single scan item*/
+    // for single scan item
     public record ScannedItem(
         @NotBlank String name,
         @NotNull @Min(1) Integer quantity
     ) {}
 
-    /** list of items to checkout */
+    // list of items to checkout 
     public record CheckoutRequest(
         @NotEmpty List<ScannedItem> items
     ) {}
 
-    /** per item breakdown in recipt */
+    // per item breakdown in recipt 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record ReceiptLineItem(
         String name,
@@ -66,7 +67,7 @@ public final class CheckoutDtos {
         BigDecimal subtotal
     ) {}
 
-    /** full receipt after checkout */
+    // full receipt after checkout 
     public record CheckoutResponse(
         List<ReceiptLineItem> lineItems,
         BigDecimal totalWithoutOffers,

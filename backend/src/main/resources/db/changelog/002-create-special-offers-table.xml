@@ -12,8 +12,8 @@
             </column>
             <column name="item_id" type="BIGINT">
                 <constraints nullable="false" unique="true"
-                             foreignKeyName="fk_special_offers_item"
-                             references="items(id)"/>
+                            foreignKeyName="fk_special_offers_item"
+                            references="items(id)"/>
             </column>
             <column name="quantity_required" type="INTEGER">
                 <constraints nullable="false"/>
@@ -21,6 +21,7 @@
             <column name="offer_price" type="NUMERIC(10,2)">
                 <constraints nullable="false"/>
             </column>
+            <column name="valid_until" type="TIMESTAMPTZ"/>
             <column name="created_at" type="TIMESTAMPTZ">
                 <constraints nullable="false"/>
             </column>

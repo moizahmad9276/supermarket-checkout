@@ -151,17 +151,10 @@ export class CheckoutPageComponent {
     .map(e => `• ${e.item.name} x${e.quantity}`)
     .join('\n');
 
+  const total = this.basket.calculateTotal(this.basket.entries());
+
   const confirmed = window.confirm(
-    `Confirm your order?\n\n${itemLines}\n\n` +
-    `Total: €${this.basket.entries().reduce((sum, e) => {
-      const offer = e.item.specialOffer;
-      if (offer) {
-        const groups = Math.floor(e.quantity / offer.quantityRequired);
-        const remainder = e.quantity % offer.quantityRequired;
-        return sum + (groups * offer.offerPrice) + (remainder * e.item.unitPrice);
-      }
-      return sum + e.item.unitPrice * e.quantity;
-    }, 0).toFixed(2)}`
+    `Confirm your order?\n\n${itemLines}\n\nTotal: €${total.toFixed(2)}`
   );
 
   if (!confirmed) return;

@@ -1,12 +1,17 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, signal, OnDestroy } from '@angular/core';
 import { BasketEntry, Item } from '../models/checkout.models';
 
-
- //aggregates quantities automatically when the same item is added multiple times
- 
 @Injectable({ providedIn: 'root' })
 export class BasketService {
   private readonly _entries = signal<BasketEntry[]>([]);
+  readonly now = signal(Date.now());
+  private timerRef: any;
+
+  constructor() {
+    this.timerRef = setInterval(() => {
+      this.now.set(Date.now());
+    }, 1_000);
+  }
 
   readonly entries = this._entries.asReadonly();
 
@@ -44,5 +49,32 @@ export class BasketService {
 
   clear(): void {
     this._entries.set([]);
+  }
+
+  refreshItems(updatedItems: Item[]): void {
+    this._entries.update((entries) =>
+      entries.map((entry) => {
+        const updated = updatedItems.find((i) => i.id === entry.item.id);
+        return updated ? { ...entry, item: updated } : entry;
+      })
+    );
+  }
+
+  isOfferActive(item: Item): boolean {
+    const offer = item.specialOffer;
+    return !!(offer && (!offer.validUntil
+      || new Date(offer.validUntil).getTime() > this.now()));
+  }
+
+  calculateTotal(entries: BasketEntry[]): number {
+    return entries.reduce((sum, e) => {
+      if (this.isOfferActive(e.item)) {
+        const offer = e.item.specialOffer!;
+        const groups = Math.floor(e.quantity / offer.quantityRequired);
+        const remainder = e.quantity % offer.quantityRequired;
+        return sum + (groups * offer.offerPrice) + (remainder * e.item.unitPrice);
+      }
+      return sum + e.item.unitPrice * e.quantity;
+    }, 0);
   }
 }

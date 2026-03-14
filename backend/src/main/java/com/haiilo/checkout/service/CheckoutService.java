@@ -10,18 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-
-/**
- * pricing algorithm per item:
- *   1. if the item has a specal offer of "N for P":
- *      - offerGroupsApplied = quantity / N
- *      - remainder           = quantity % N
- *      - subtotal            = (offerGroupsApplied * P) + (remainder * unitPrice)
- *   2. otherwise
- *      - subtotal = quantity * unitPrice
- */
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +37,11 @@ public class CheckoutService {
             totalWithoutOffers = totalWithoutOffers.add(fullPrice);
 
             SpecialOffer offer = item.getSpecialOffer();
+            if (offer != null && offer.getValidUntil() != null
+                    && offer.getValidUntil().isBefore(Instant.now())) {
+                offer = null; 
+            }
+            
             BigDecimal subtotal;
             int offerGroupsApplied = 0;
             BigDecimal savings = BigDecimal.ZERO;

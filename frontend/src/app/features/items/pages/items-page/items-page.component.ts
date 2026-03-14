@@ -1,9 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ItemFormComponent } from '../../components/item-form/item-form.component';
 import { ItemService } from '../../../../core/services/item.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { Item, ItemRequest } from '../../../../core/models/checkout.models';
+import { OfferService } from '../../../../core/services/offer.service';
 
 @Component({
   selector: 'app-items-page',
@@ -59,14 +60,25 @@ import { Item, ItemRequest } from '../../../../core/models/checkout.models';
                     <td class="td--name">{{ item.name }}</td>
                     <td>€{{ item.unitPrice | number: '1.2-2' }}</td>
                     <td>
-                      @if (item.specialOffer) {
+                     @if (item.specialOffer && offerService.offerStatus(item.specialOffer.validUntil, now()) !== 'expired') {
+                      <div class="offer-info">
                         <span class="offer-chip">
                           {{ item.specialOffer.quantityRequired }} for
                           €{{ item.specialOffer.offerPrice | number: '1.2-2' }}
                         </span>
-                      } @else {
-                        <span class="text-muted">—</span>
-                      }
+                        @if (offerService.offerStatus(item.specialOffer.validUntil, now()) === 'soon') {
+                          <span class="offer-expiry offer-expiry--soon">
+                            {{ offerService.expiryLabel(item.specialOffer.validUntil, now()) }}
+                          </span>
+                        } @else {
+                          <span class="offer-expiry">
+                            {{ offerService.expiryLabel(item.specialOffer.validUntil, now()) }}
+                          </span>
+                        }
+                      </div>
+                    } @else {
+                      <span class="text-muted">—</span>
+                    }
                     </td>
                     <td class="text-muted">{{ item.updatedAt | date: 'dd MMM yyyy, HH:mm' }}</td>
                     <td>
@@ -164,6 +176,11 @@ import { Item, ItemRequest } from '../../../../core/models/checkout.models';
       border-radius: 99px;
     }
 
+    .offer-info { display: flex; flex-direction: column; gap: 0.2rem; }
+    .offer-expiry { font-size: 0.72rem; color: #6b7280; }
+    .offer-expiry--soon { color: #f59e0b; font-weight: 600; }
+    .offer-expiry--expired { color: #ef4444; font-weight: 600; }
+
     .row-actions { display: flex; gap: 0.5rem; }
     .action-btn {
       border: none;
@@ -188,7 +205,7 @@ import { Item, ItemRequest } from '../../../../core/models/checkout.models';
     .btn--primary:hover { opacity: 0.85; }
   `],
 })
-export class ItemsPageComponent implements OnInit {
+export class ItemsPageComponent implements OnInit, OnDestroy  {
   protected readonly items = signal<Item[]>([]);
   protected readonly loading = signal(true);
   protected readonly saving = signal(false);
@@ -198,9 +215,30 @@ export class ItemsPageComponent implements OnInit {
 
   private readonly itemService = inject(ItemService);
   private readonly notification = inject(NotificationService);
+  protected readonly offerService = inject(OfferService);
+  protected readonly now = signal(Date.now());
 
-  ngOnInit(): void {
+  private timerRef: any;
+  private reloadRef: any;
+
+   ngOnInit(): void {
     this.loadItems();
+
+    this.timerRef = setInterval(() => {
+      this.now.set(Date.now());
+    }, 1_000);
+
+   
+    this.reloadRef = setInterval(() => {
+      this.itemService.getAll().subscribe({
+        next: (items) => this.items.set(items), 
+      });
+    }, 30_000);
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.timerRef);
+    clearInterval(this.reloadRef);
   }
 
   protected openCreate(): void {

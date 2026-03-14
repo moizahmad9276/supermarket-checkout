@@ -154,15 +154,7 @@ export class BasketPanelComponent {
   protected readonly basket = inject(BasketService);
 
 protected readonly estimatedTotal = computed(() =>
-  this.basket.entries().reduce((sum, e) => {
-    const offer = e.item.specialOffer;
-    if (offer) {
-      const groups = Math.floor(e.quantity / offer.quantityRequired);
-      const remainder = e.quantity % offer.quantityRequired;
-      return sum + (groups * offer.offerPrice) + (remainder * e.item.unitPrice);
-    }
-    return sum + e.item.unitPrice * e.quantity;
-  }, 0)
+  this.basket.calculateTotal(this.basket.entries())
 );
 
 protected decrement(itemId: number, current: number): void {

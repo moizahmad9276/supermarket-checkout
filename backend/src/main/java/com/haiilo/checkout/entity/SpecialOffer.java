@@ -22,6 +22,9 @@ public class SpecialOffer {
     @Column(name = "offer_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal offerPrice;
 
+    @Column(name = "valid_until")
+    private Instant validUntil;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -40,6 +43,8 @@ public class SpecialOffer {
     public void setQuantityRequired(Integer quantityRequired) { this.quantityRequired = quantityRequired; }
     public BigDecimal getOfferPrice() { return offerPrice; }
     public void setOfferPrice(BigDecimal offerPrice) { this.offerPrice = offerPrice; }
+    public Instant getValidUntil() { return validUntil; }
+    public void setValidUntil(Instant validUntil) { this.validUntil = validUntil; }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
 
@@ -50,22 +55,26 @@ public class SpecialOffer {
     protected void onUpdate() { this.updatedAt = Instant.now(); }
 
     public static class SpecialOfferBuilder {
-    private Long id;
-    private Item item;
-    private Integer quantityRequired;
-    private BigDecimal offerPrice;
+        private Long id;
+        private Item item;
+        private Integer quantityRequired;
+        private BigDecimal offerPrice;
+        private Instant validUntil;  
 
-    public SpecialOfferBuilder id(Long id) { this.id = id; return this; }
-    public SpecialOfferBuilder item(Item item) { this.item = item; return this; }
-    public SpecialOfferBuilder quantityRequired(Integer quantityRequired) { this.quantityRequired = quantityRequired; return this; }
-    public SpecialOfferBuilder offerPrice(BigDecimal offerPrice) { this.offerPrice = offerPrice; return this; }
-    public SpecialOffer build() {
-        SpecialOffer offer = new SpecialOffer();
-        offer.id = this.id;
-        offer.item = this.item;
-        offer.quantityRequired = this.quantityRequired;
-        offer.offerPrice = this.offerPrice;
-        return offer;
+        public SpecialOfferBuilder id(Long id) { this.id = id; return this; }
+        public SpecialOfferBuilder item(Item item) { this.item = item; return this; }
+        public SpecialOfferBuilder quantityRequired(Integer quantityRequired) { this.quantityRequired = quantityRequired; return this; }
+        public SpecialOfferBuilder offerPrice(BigDecimal offerPrice) { this.offerPrice = offerPrice; return this; }
+        public SpecialOfferBuilder validUntil(Instant validUntil) { this.validUntil = validUntil; return this; }  // ← MISSING
+
+        public SpecialOffer build() {
+            SpecialOffer offer = new SpecialOffer();
+            offer.id = this.id;
+            offer.item = this.item;
+            offer.quantityRequired = this.quantityRequired;
+            offer.offerPrice = this.offerPrice;
+            offer.validUntil = this.validUntil;
+            return offer;
+        }
     }
-}
 }
