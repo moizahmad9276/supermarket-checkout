@@ -57,7 +57,7 @@ Calculates the total price of scanned items and applies weekly special offers (e
 
 ### 1. Start the Database
 ```bash
-cd supermarket-haiilo
+cd supermarket-checkout
 docker compose up -d postgres
 ```
 
