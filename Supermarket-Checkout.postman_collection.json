@@ -1,0 +1,191 @@
+{
+  "info": {
+    "name": "Supermarket Checkout API",
+    "_postman_id": "supermarket-checkout-collection",
+    "description": "Complete API collection for the Supermarket Checkout exercise",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api/v1", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Items",
+      "item": [
+        {
+          "name": "GET all items",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/items",
+            "description": "Returns all items with their prices and active special offers"
+          }
+        },
+        {
+          "name": "GET item by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/items/1"
+          }
+        },
+        {
+          "name": "POST create item (no offer)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/items",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mango\",\n  \"unitPrice\": 80\n}"
+            }
+          }
+        },
+        {
+          "name": "POST create item (with offer)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/items",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Strawberry\",\n  \"unitPrice\": 40,\n  \"specialOffer\": {\n    \"quantityRequired\": 4,\n    \"offerPrice\": 130\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "PUT update item price + offer",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/items/1",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Apple\",\n  \"unitPrice\": 35,\n  \"specialOffer\": {\n    \"quantityRequired\": 3,\n    \"offerPrice\": 80\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "PUT remove offer from item",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/items/1",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Apple\",\n  \"unitPrice\": 30,\n  \"specialOffer\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE item",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/items/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Checkout",
+      "item": [
+        {
+          "name": "POST checkout — basic basket",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/checkout",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    { \"name\": \"Apple\",  \"quantity\": 1 },\n    { \"name\": \"Banana\", \"quantity\": 1 },\n    { \"name\": \"Peach\",  \"quantity\": 1 },\n    { \"name\": \"Kiwi\",   \"quantity\": 1 }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Expected: Apple 30 + Banana 50 + Peach 60 + Kiwi 20 = 160 (no offers triggered)"
+          }
+        },
+        {
+          "name": "POST checkout — Apple offer triggered (2 for 45)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/checkout",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    { \"name\": \"Apple\", \"quantity\": 2 }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Expected: 45 (saves 15)"
+          }
+        },
+        {
+          "name": "POST checkout — Apple offer + remainder (3 items)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/checkout",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    { \"name\": \"Apple\", \"quantity\": 3 }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Expected: 45 (offer) + 30 (remainder) = 75 (saves 15)"
+          }
+        },
+        {
+          "name": "POST checkout — Banana offer triggered (3 for 130)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/checkout",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    { \"name\": \"Banana\", \"quantity\": 3 }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Expected: 130 (saves 20)"
+          }
+        },
+        {
+          "name": "POST checkout — Full mixed basket",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/checkout",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    { \"name\": \"Apple\",  \"quantity\": 3 },\n    { \"name\": \"Banana\", \"quantity\": 6 },\n    { \"name\": \"Peach\",  \"quantity\": 2 },\n    { \"name\": \"Kiwi\",   \"quantity\": 5 }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Apple: 75, Banana: 260, Peach: 120, Kiwi: 100 = 555 total, saves 55"
+          }
+        },
+        {
+          "name": "POST checkout — 404 unknown item",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/checkout",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    { \"name\": \"Mango\", \"quantity\": 1 }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Expected: 404 Not Found"
+          }
+        },
+        {
+          "name": "POST checkout — 400 empty basket",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/checkout",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": []\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Expected: 400 Validation Failed"
+          }
+        }
+      ]
+    }
+  ]
+}
