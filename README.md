@@ -117,10 +117,10 @@ Open **http://localhost:4200**
 
 | Item   | Unit Price | Special Offer | Offer Expires  |
 |--------|------------|---------------|----------------|
-| Apple  | €0.30      | 2 for €45.00  | 7 days from now |
-| Banana | €0.50      | 3 for €130.00 | 7 days from now |
-| Peach  | €0.60      | —             | —              |
-| Kiwi   | €0.20      | —             | —              |
+| Apple  | €30      | 2 for €45.00  | 7 days from now |
+| Banana | €50      | 3 for €130.00 | 7 days from now |
+| Peach  | €60      | —             | —              |
+| Kiwi   | €20      | —             | —              |
 
 
 ## API Reference
