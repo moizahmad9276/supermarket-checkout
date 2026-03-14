@@ -1,7 +1,27 @@
 # Supermarket Checkout
 
-A full-stack supermarket checkout system (Haiilo)
-Calculates the total price of scanned items and applies weekly special offers (e.g. "2 Apples for €45").
+## Exercise Brief
+
+> Implement the code for a supermarket checkout that calculates the total price of a number of items.
+>
+> - Items each have their own price, which can change frequently.
+> - There are also weekly special offers for when multiple items are bought.
+> - An example of this would be "Apples are 50 each or 3 for 130".
+>
+> **Pricing table example:**
+>
+> | Item   | Price for 1 item | Offer      |
+> |--------|------------------|------------|
+> | Apple  | 30               | 2 for 45   |
+> | Banana | 50               | 3 for 130  |
+> | Peach  | 60               | —          |
+> | Kiwi   | 20               | —          |
+>
+> The checkout accepts items in any order, so that if we scan an Apple, a Banana and
+> another Apple, we'll recognise two Apples and apply the discount of 2 for 45.
+>
+> Please work on this as you would in your usual job. Please do frequent commits so
+> it is possible to retrace your progress through the task.
 
 
 ## Tech Stack
