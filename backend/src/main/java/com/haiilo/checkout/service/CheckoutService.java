@@ -6,7 +6,6 @@ import com.haiilo.checkout.entity.SpecialOffer;
 import com.haiilo.checkout.exception.ResourceNotFoundException;
 import com.haiilo.checkout.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +23,6 @@ import java.util.List;
  *      - subtotal = quantity * unitPrice
  */
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -81,7 +79,7 @@ public class CheckoutService {
 
         BigDecimal totalPrice = totalWithoutOffers.subtract(totalSavings);
 
-        log.debug("Checkout calculated: items={}, total={}, savings={}", lineItems.size(), totalPrice, totalSavings);
+        System.out.println("Checkout calculated: items=" + lineItems.size() + " total=" + totalPrice + " savings=" + totalSavings);
 
         return new CheckoutResponse(lineItems, totalWithoutOffers, totalSavings, totalPrice);
     }

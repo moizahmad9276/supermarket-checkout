@@ -3,7 +3,7 @@ version: '3.9'
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: supermarket-postgres
+    container_name: supermarket-postgres-haiilo
     environment:
       POSTGRES_DB: supermarket_checkout
       POSTGRES_USER: postgres

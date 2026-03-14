@@ -8,13 +8,12 @@ import com.haiilo.checkout.exception.ResourceNotFoundException;
 import com.haiilo.checkout.repository.ItemRepository;
 import com.haiilo.checkout.repository.SpecialOfferRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Slf4j
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -50,7 +49,7 @@ public class ItemService {
         }
 
         Item saved = itemRepository.save(item);
-        log.info("Created item id={} name={}", saved.getId(), saved.getName());
+        System.out.println("Created item id=" + saved.getId() + " name=" + saved.getName());
         return toResponse(saved);
     }
 
@@ -83,7 +82,7 @@ public class ItemService {
         }
 
         Item saved = itemRepository.save(item);
-        log.info("Updated item id={}", saved.getId());
+        System.out.println("Updated item id=" + saved.getId());
         return toResponse(saved);
     }
 
@@ -93,7 +92,7 @@ public class ItemService {
             throw new ResourceNotFoundException("Item not found with id: " + id);
         }
         itemRepository.deleteById(id);
-        log.info("Deleted item id={}", id);
+        System.out.println("Deleted item id=" + id);
     }
 
     private Item fetchItem(Long id) {

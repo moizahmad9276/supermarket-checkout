@@ -1,6 +1,6 @@
 package com.haiilo.checkout.exception;
 
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.*;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.*;
 
-@Slf4j
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -17,14 +17,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
-        log.warn("Resource not found: {}", ex.getMessage());
+        System.out.println("Resource not found: " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse(Instant.now(), 404, "Not Found", ex.getMessage()));
     }
 
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ErrorResponse> handleDuplicate(DuplicateResourceException ex) {
-        log.warn("Duplicate resource: {}", ex.getMessage());
+        System.out.println("Duplicate resource: " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ErrorResponse(Instant.now(), 409, "Conflict", ex.getMessage()));
     }
@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
-        log.error("Unhandled exception", ex);
+        System.out.println("Unhandled exception: " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse(Instant.now(), 500, "Internal Server Error", ex.getMessage()));
     }
