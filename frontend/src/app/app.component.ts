@@ -20,6 +20,9 @@ import { NotificationToastComponent } from './shared/components/notification-toa
           <a routerLink="/items" routerLinkActive="navbar__link--active" class="navbar__link">
             Manage Items
           </a>
+          <a routerLink="/history" routerLinkActive="navbar__link--active" class="navbar__link">
+            History
+          </a>
         </nav>
       </header>
 

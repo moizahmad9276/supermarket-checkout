@@ -23,6 +23,14 @@ export const routes: Routes = [
     title: 'Manage Items',
   },
   {
+  path: 'history',
+  loadComponent: () =>
+    import('./features/history/pages/history-page/history-page.component').then(
+      (m) => m.HistoryPageComponent
+    ),
+  title: 'Order History',
+},
+  {
     path: '**',
     redirectTo: 'checkout',
   },

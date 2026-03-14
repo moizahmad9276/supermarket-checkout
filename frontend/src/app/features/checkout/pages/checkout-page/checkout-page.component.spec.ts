@@ -10,9 +10,10 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 
 const mockApple: Item = {
   id: 1, name: 'Apple', unitPrice: 30,
-  specialOffer: { id: 1, quantityRequired: 2, offerPrice: 45 },
+  specialOffer: { id: 1, quantityRequired: 2, offerPrice: 45, validUntil: '' },
   createdAt: '', updatedAt: '',
 };
+
 
 const mockReceipt: CheckoutResponse = {
   lineItems: [{ name: 'Apple', quantity: 2, unitPrice: 30, offerGroupsApplied: 1, savings: 15, subtotal: 45 }],

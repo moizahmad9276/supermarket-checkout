@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, computed  } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BasketService } from '../../../../core/services/basket.service';
@@ -27,7 +27,7 @@ import { BasketService } from '../../../../core/services/basket.service';
             <div class="basket-row">
               <div class="basket-row__info">
                 <span class="basket-row__name">{{ entry.item.name }}</span>
-                <span class="basket-row__unit">{{ entry.item.unitPrice | number: '1.2-2' }}p each</span>
+                <span class="basket-row__unit">€{{ entry.item.unitPrice | number: '1.2-2' }} each</span>
               </div>
               <div class="basket-row__controls">
                 <button class="qty-btn" (click)="decrement(entry.item.id, entry.quantity)">−</button>
@@ -47,8 +47,11 @@ import { BasketService } from '../../../../core/services/basket.service';
         </div>
 
         <div class="basket__summary">
-          <span>{{ basket.totalItems() }} item{{ basket.totalItems() === 1 ? '' : 's' }}</span>
-        </div>
+  <div class="summary-row">
+    <span>{{ basket.totalItems() }} item{{ basket.totalItems() === 1 ? '' : 's' }}</span>
+    <span class="summary-estimate">Total: <strong>€{{ estimatedTotal() | number: '1.2-2' }}</strong></span>
+  </div>
+</div>
       }
     </div>
   `,
@@ -141,12 +144,20 @@ import { BasketService } from '../../../../core/services/basket.service';
     .btn--ghost { background: transparent; color: #6b7280; }
     .btn--ghost:hover { color: #ef4444; background: #fee2e2; }
     .btn--sm { padding: 0.3rem 0.6rem; font-size: 0.78rem; }
+
+    .summary-row { display: flex; justify-content: space-between; align-items: center; }
+.summary-estimate { font-size: 0.9rem; color: #374151; }
+.summary-estimate strong { color: #1a1a2e; font-size: 1rem; }
   `],
 })
 export class BasketPanelComponent {
   protected readonly basket = inject(BasketService);
 
-  protected decrement(itemId: number, current: number): void {
+protected readonly estimatedTotal = computed(() =>
+  this.basket.calculateTotal(this.basket.entries())
+);
+
+protected decrement(itemId: number, current: number): void {
     this.basket.updateQuantity(itemId, current - 1);
   }
 }

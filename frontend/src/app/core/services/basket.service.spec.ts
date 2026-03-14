@@ -4,12 +4,12 @@ import { Item } from '../models/checkout.models';
 
 const mockApple: Item = {
   id: 1, name: 'Apple', unitPrice: 30,
-  specialOffer: { id: 1, quantityRequired: 2, offerPrice: 45 },
+  specialOffer: { id: 1, quantityRequired: 2, offerPrice: 45, validUntil: '' },
   createdAt: '', updatedAt: '',
 };
 const mockBanana: Item = {
   id: 2, name: 'Banana', unitPrice: 50,
-  specialOffer: { id: 2, quantityRequired: 3, offerPrice: 130 },
+  specialOffer: { id: 2, quantityRequired: 3, offerPrice: 130, validUntil: '' },
   createdAt: '', updatedAt: '',
 };
 

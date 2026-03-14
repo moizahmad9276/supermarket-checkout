@@ -37,6 +37,7 @@
             <column name="item_id" valueComputed="(SELECT id FROM items WHERE name = 'Apple')"/>
             <column name="quantity_required" value="2"/>
             <column name="offer_price" value="45.00"/>
+            <column name="valid_until" valueComputed="NOW() + INTERVAL '7 days'"/>
             <column name="created_at" valueDate="now()"/>
             <column name="updated_at" valueDate="now()"/>
         </insert>
@@ -44,6 +45,7 @@
             <column name="item_id" valueComputed="(SELECT id FROM items WHERE name = 'Banana')"/>
             <column name="quantity_required" value="3"/>
             <column name="offer_price" value="130.00"/>
+            <column name="valid_until" valueComputed="NOW() + INTERVAL '7 days'"/>
             <column name="created_at" valueDate="now()"/>
             <column name="updated_at" valueDate="now()"/>
         </insert>

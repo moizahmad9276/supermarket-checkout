@@ -26,7 +26,7 @@ import { Item, ItemRequest } from '../../../../core/models/checkout.models';
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="unitPrice">Unit Price (pence)</label>
+        <label class="form-label" for="unitPrice">Unit Price (€)</label>
         <input
           id="unitPrice"
           class="form-control"
@@ -63,7 +63,7 @@ import { Item, ItemRequest } from '../../../../core/models/checkout.models';
             />
           </div>
           <div class="form-group">
-            <label class="form-label" for="offerPrice">Offer price (pence)</label>
+            <label class="form-label" for="offerPrice">Offer price (€)</label>
             <input
               id="offerPrice"
               class="form-control"

@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 
@@ -71,6 +73,7 @@ public class ItemService {
             if (item.getSpecialOffer() != null) {
                 item.getSpecialOffer().setQuantityRequired(request.specialOffer().quantityRequired());
                 item.getSpecialOffer().setOfferPrice(request.specialOffer().offerPrice());
+                item.getSpecialOffer().setValidUntil(Instant.now().plus(7, ChronoUnit.DAYS)); 
             } else {
                 item.setSpecialOffer(buildOffer(request.specialOffer(), item));
             }
@@ -101,18 +104,19 @@ public class ItemService {
     }
 
     private SpecialOffer buildOffer(SpecialOfferRequest req, Item item) {
-        return SpecialOffer.builder()
-                .item(item)
-                .quantityRequired(req.quantityRequired())
-                .offerPrice(req.offerPrice())
-                .build();
+    return SpecialOffer.builder()
+            .item(item)
+            .quantityRequired(req.quantityRequired())
+            .offerPrice(req.offerPrice())
+            .validUntil(Instant.now().plus(7, ChronoUnit.DAYS))
+            .build();
     }
 
     public ItemResponse toResponse(Item item) {
         SpecialOfferResponse offerResponse = null;
         if (item.getSpecialOffer() != null) {
             SpecialOffer o = item.getSpecialOffer();
-            offerResponse = new SpecialOfferResponse(o.getId(), o.getQuantityRequired(), o.getOfferPrice());
+            offerResponse = new SpecialOfferResponse(o.getId(), o.getQuantityRequired(), o.getOfferPrice(), o.getValidUntil());
         }
         return new ItemResponse(
                 item.getId(),

@@ -1,8 +1,10 @@
-import { Component, OnInit, inject, output } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ItemService } from '../../../../core/services/item.service';
 import { Item } from '../../../../core/models/checkout.models';
+import { BasketService } from '../../../../core/services/basket.service';
+import { OfferService } from '../../../../core/services/offer.service';
 
 @Component({
   selector: 'app-item-picker',
@@ -19,12 +21,21 @@ import { Item } from '../../../../core/models/checkout.models';
           @for (item of items; track item.id) {
             <div class="item-card">
               <div class="item-card__name">{{ item.name }}</div>
-              <div class="item-card__price">{{ item.unitPrice | number: '1.2-2' }}p</div>
-              @if (item.specialOffer) {
+              <div class="item-card__price">€{{ item.unitPrice | number: '1.2-2' }}</div>
+              @if (item.specialOffer && offerService.offerStatus(item.specialOffer.validUntil, now()) !== 'expired') {
                 <div class="item-card__offer">
                   🏷️ {{ item.specialOffer.quantityRequired }} for
-                  {{ item.specialOffer.offerPrice | number: '1.2-2' }}p
+                  €{{ item.specialOffer.offerPrice | number: '1.2-2' }}
                 </div>
+                @if (offerService.offerStatus(item.specialOffer.validUntil, now()) === 'soon') {
+                  <div class="item-card__expiry item-card__expiry--soon">
+                    {{ offerService.expiryLabel(item.specialOffer.validUntil, now()) }}
+                  </div>
+                } @else {
+                  <div class="item-card__expiry">
+                    {{ offerService.expiryLabel(item.specialOffer.validUntil, now()) }}
+                  </div>
+                }
               }
               <div class="item-card__actions">
                 <input
@@ -93,6 +104,10 @@ import { Item } from '../../../../core/models/checkout.models';
     }
     .item-card__qty:focus { outline: none; border-color: #e94560; }
 
+    .item-card__expiry { font-size: 0.72rem; color: #6b7280; }
+    .item-card__expiry--soon { color: #f59e0b; font-weight: 600; }
+    .item-card__expiry--expired { color: #ef4444; font-weight: 600; }
+
     .btn { border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .btn--primary { background: #e94560; color: #fff; }
@@ -100,7 +115,7 @@ import { Item } from '../../../../core/models/checkout.models';
     .btn--sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
   `],
 })
-export class ItemPickerComponent implements OnInit {
+export class ItemPickerComponent implements OnInit, OnDestroy  {
   readonly itemAdded = output<{ item: Item; quantity: number }>();
 
   protected items: Item[] = [];
@@ -108,17 +123,41 @@ export class ItemPickerComponent implements OnInit {
   protected quantities: Record<number, number> = {};
 
   private readonly itemService = inject(ItemService);
+  private readonly basketService = inject(BasketService);
+  protected readonly offerService = inject(OfferService);
+  protected readonly now = signal(Date.now());
+
+  private timerRef: any;
+  private reloadRef: any;
 
   ngOnInit(): void {
-    this.itemService.getAll().subscribe({
-      next: (items) => {
-        this.items = items;
-        this.items.forEach((i) => (this.quantities[i.id] = 1));
-        this.loading = false;
-      },
-      error: () => (this.loading = false),
-    });
+  this.itemService.getAll().subscribe({
+    next: (items) => {
+      this.items = items;
+      this.items.forEach((i) => (this.quantities[i.id] = 1));
+      this.loading = false;
+    },
+    error: () => (this.loading = false),
+  });
+
+    this.timerRef = setInterval(() => {
+      this.now.set(Date.now());
+    }, 1_000);
+
+    this.reloadRef = setInterval(() => {
+      this.itemService.getAll().subscribe({
+        next: (items) => {
+          this.items = items;
+          this.basketService.refreshItems(items); 
+        }
+      });
+    }, 30_000);
   }
+
+ ngOnDestroy(): void {
+  clearInterval(this.timerRef);
+  clearInterval(this.reloadRef);
+}
 
   protected onAdd(item: Item): void {
     const quantity = this.quantities[item.id] ?? 1;

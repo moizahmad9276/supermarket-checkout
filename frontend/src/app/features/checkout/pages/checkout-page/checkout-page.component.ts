@@ -7,6 +7,8 @@ import { BasketService } from '../../../../core/services/basket.service';
 import { CheckoutService } from '../../../../core/services/checkout.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { CheckoutResponse, Item } from '../../../../core/models/checkout.models';
+import { ReceiptHistoryService } from '../../../../core/services/receipt-history.service';
+
 
 @Component({
   selector: 'app-checkout-page',
@@ -37,7 +39,7 @@ import { CheckoutResponse, Item } from '../../../../core/models/checkout.models'
               @if (calculating()) {
                 <span class="spinner"></span> Calculating…
               } @else {
-                🧾 Checkout
+                🧾 Pay now
               }
             </button>
             @if (receipt()) {
@@ -47,7 +49,7 @@ import { CheckoutResponse, Item } from '../../../../core/models/checkout.models'
         </section>
 
         <section class="card checkout-layout__receipt">
-          <app-receipt-panel [receipt]="receipt()" />
+          <app-receipt-panel [receipt]="receipt()" [record]="currentRecord()" />
         </section>
       </div>
     </div>
@@ -131,39 +133,57 @@ export class CheckoutPageComponent {
   protected readonly basket = inject(BasketService);
   private readonly checkoutService = inject(CheckoutService);
   private readonly notification = inject(NotificationService);
+  private readonly receiptHistory = inject(ReceiptHistoryService);
 
   protected readonly calculating = signal(false);
   protected readonly receipt = signal<CheckoutResponse | null>(null);
+  protected readonly currentRecord = signal<any>(null);
 
   protected onItemAdded(event: { item: Item; quantity: number }): void {
     this.basket.addItem(event.item, event.quantity);
-    this.receipt.set(null); // resetss receipt when basket chhanges
+    this.receipt.set(null); // rset receipt when basket changes
   }
 
   protected onCheckout(): void {
-    if (this.basket.isEmpty()) return;
+  if (this.basket.isEmpty()) return;
 
-    this.calculating.set(true);
+  const itemLines = this.basket.entries()
+    .map(e => `• ${e.item.name} x${e.quantity}`)
+    .join('\n');
 
-    const items = this.basket.entries().map((e) => ({
-      name: e.item.name,
-      quantity: e.quantity,
-    }));
+  const total = this.basket.calculateTotal(this.basket.entries());
 
-    this.checkoutService.calculate({ items }).subscribe({
-      next: (response) => {
-        this.receipt.set(response);
-        this.calculating.set(false);
-        this.notification.success('Checkout complete! See your receipt.');
-      },
-      error: () => {
-        this.calculating.set(false);
-      },
-    });
-  }
+  const confirmed = window.confirm(
+    `Confirm your order?\n\n${itemLines}\n\nTotal: €${total.toFixed(2)}`
+  );
+
+  if (!confirmed) return;
+
+  this.calculating.set(true);
+
+  const items = this.basket.entries().map((e) => ({
+    name: e.item.name,
+    quantity: e.quantity,
+  }));
+
+  this.checkoutService.calculate({ items }).subscribe({
+    next: (response) => {
+      const record = this.receiptHistory.add(response);
+      this.receipt.set(response);
+      this.currentRecord.set(record);
+      this.basket.clear();
+      this.calculating.set(false);
+      this.notification.success('✅ Payment successful! Thank you for your order.');
+    },
+    error: () => {
+      this.calculating.set(false);
+    },
+  });
+}
 
   protected onNewOrder(): void {
-    this.basket.clear();
-    this.receipt.set(null);
-  }
+  this.basket.clear();
+  this.receipt.set(null);
+  this.currentRecord.set(null); 
+}
 }

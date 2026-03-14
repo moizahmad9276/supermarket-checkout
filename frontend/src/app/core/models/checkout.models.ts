@@ -5,6 +5,7 @@ export interface SpecialOffer {
   id: number;
   quantityRequired: number;
   offerPrice: number;
+  validUntil: string | null;
 }
 
 export interface Item {
