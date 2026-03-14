@@ -7,6 +7,8 @@ import { BasketService } from '../../../../core/services/basket.service';
 import { CheckoutService } from '../../../../core/services/checkout.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { CheckoutResponse, Item } from '../../../../core/models/checkout.models';
+import { ReceiptHistoryService } from '../../../../core/services/receipt-history.service';
+
 
 @Component({
   selector: 'app-checkout-page',
@@ -30,16 +32,16 @@ import { CheckoutResponse, Item } from '../../../../core/models/checkout.models'
           <app-basket-panel />
           <div class="checkout-actions">
             <button
-  class="btn btn--checkout"
-  [disabled]="basket.isEmpty() || calculating()"
-  (click)="onCheckout()"
->
-  @if (calculating()) {
-    <span class="spinner"></span> Processing payment…
-  } @else {
-    💳 Pay now
-  }
-</button>
+              class="btn btn--checkout"
+              [disabled]="basket.isEmpty() || calculating()"
+              (click)="onCheckout()"
+            >
+              @if (calculating()) {
+                <span class="spinner"></span> Calculating…
+              } @else {
+                🧾 Pay now
+              }
+            </button>
             @if (receipt()) {
               <button class="btn btn--ghost" (click)="onNewOrder()">New Order</button>
             }
@@ -47,7 +49,7 @@ import { CheckoutResponse, Item } from '../../../../core/models/checkout.models'
         </section>
 
         <section class="card checkout-layout__receipt">
-          <app-receipt-panel [receipt]="receipt()" />
+          <app-receipt-panel [receipt]="receipt()" [record]="currentRecord()" />
         </section>
       </div>
     </div>
@@ -131,23 +133,35 @@ export class CheckoutPageComponent {
   protected readonly basket = inject(BasketService);
   private readonly checkoutService = inject(CheckoutService);
   private readonly notification = inject(NotificationService);
+  private readonly receiptHistory = inject(ReceiptHistoryService);
 
   protected readonly calculating = signal(false);
   protected readonly receipt = signal<CheckoutResponse | null>(null);
+  protected readonly currentRecord = signal<any>(null);
 
   protected onItemAdded(event: { item: Item; quantity: number }): void {
     this.basket.addItem(event.item, event.quantity);
-    this.receipt.set(null); // resetss receipt when basket chhanges
+    this.receipt.set(null); // rset receipt when basket changes
   }
 
   protected onCheckout(): void {
   if (this.basket.isEmpty()) return;
 
-  const itemCount = this.basket.totalItems();
-  const confirmed = confirm(
-    `Confirm your order?\n\n` +
-    this.basket.entries().map(e => `  • ${e.item.name} x${e.quantity}`).join('\n') +
-    `\n\nTotal items: ${itemCount}`
+  const itemLines = this.basket.entries()
+    .map(e => `• ${e.item.name} x${e.quantity}`)
+    .join('\n');
+
+  const confirmed = window.confirm(
+    `Confirm your order?\n\n${itemLines}\n\n` +
+    `Total: €${this.basket.entries().reduce((sum, e) => {
+      const offer = e.item.specialOffer;
+      if (offer) {
+        const groups = Math.floor(e.quantity / offer.quantityRequired);
+        const remainder = e.quantity % offer.quantityRequired;
+        return sum + (groups * offer.offerPrice) + (remainder * e.item.unitPrice);
+      }
+      return sum + e.item.unitPrice * e.quantity;
+    }, 0).toFixed(2)}`
   );
 
   if (!confirmed) return;
@@ -161,7 +175,9 @@ export class CheckoutPageComponent {
 
   this.checkoutService.calculate({ items }).subscribe({
     next: (response) => {
+      const record = this.receiptHistory.add(response);
       this.receipt.set(response);
+      this.currentRecord.set(record);
       this.basket.clear();
       this.calculating.set(false);
       this.notification.success('✅ Payment successful! Thank you for your order.');
@@ -173,7 +189,8 @@ export class CheckoutPageComponent {
 }
 
   protected onNewOrder(): void {
-    this.basket.clear();
-    this.receipt.set(null);
-  }
+  this.basket.clear();
+  this.receipt.set(null);
+  this.currentRecord.set(null); 
+}
 }
