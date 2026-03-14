@@ -11,7 +11,6 @@ import { CheckoutResponse } from '../../../../core/models/checkout.models';
       <div class="receipt">
         <div class="receipt__header">
           <h3 class="receipt__title">🧾 Receipt</h3>
-          <span class="receipt__badge">{{ r.lineItems.length }} line{{ r.lineItems.length === 1 ? '' : 's' }}</span>
         </div>
 
         <div class="receipt__lines">
@@ -20,7 +19,7 @@ import { CheckoutResponse } from '../../../../core/models/checkout.models';
               <div class="receipt-line__left">
                 <span class="receipt-line__name">{{ line.name }}</span>
                 <span class="receipt-line__detail">
-                  {{ line.quantity }} × {{ line.unitPrice | number: '1.2-2' }}p
+                  {{ line.quantity }} × €{{ line.unitPrice | number: '1.2-2' }}
                   @if (line.offerGroupsApplied) {
                     <span class="receipt-line__offer-badge">
                       {{ line.offerGroupsApplied }} offer{{ line.offerGroupsApplied > 1 ? 's' : '' }} applied
@@ -30,9 +29,9 @@ import { CheckoutResponse } from '../../../../core/models/checkout.models';
               </div>
               <div class="receipt-line__right">
                 @if (line.savings) {
-                  <span class="receipt-line__savings">−{{ line.savings | number: '1.2-2' }}p</span>
+                  <span class="receipt-line__savings">−€{{ line.savings | number: '1.2-2' }}</span>
                 }
-                <span class="receipt-line__subtotal">{{ line.subtotal | number: '1.2-2' }}p</span>
+                <span class="receipt-line__subtotal">€{{ line.subtotal | number: '1.2-2' }}</span>
               </div>
             </div>
           }
@@ -41,17 +40,17 @@ import { CheckoutResponse } from '../../../../core/models/checkout.models';
         <div class="receipt__totals">
           <div class="totals-row">
             <span>Subtotal</span>
-            <span>{{ r.totalWithoutOffers | number: '1.2-2' }}p</span>
+            <span>€{{ r.totalWithoutOffers | number: '1.2-2' }}</span>
           </div>
           @if (r.totalSavings > 0) {
             <div class="totals-row totals-row--savings">
               <span>🏷️ Total savings</span>
-              <span>−{{ r.totalSavings | number: '1.2-2' }}p</span>
+              <span>−€{{ r.totalSavings | number: '1.2-2' }}</span>
             </div>
           }
           <div class="totals-row totals-row--grand">
             <span>Total</span>
-            <span>{{ r.totalPrice | number: '1.2-2' }}p</span>
+            <span>€{{ r.totalPrice | number: '1.2-2' }}</span>
           </div>
         </div>
       </div>
@@ -78,14 +77,6 @@ import { CheckoutResponse } from '../../../../core/models/checkout.models';
       border-bottom: 1px dashed #e5e7eb;
     }
     .receipt__title { margin: 0; font-size: 1.1rem; font-weight: 600; color: #1a1a2e; }
-    .receipt__badge {
-      background: #ede9fe;
-      color: #7c3aed;
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 99px;
-    }
 
     .receipt__lines { padding: 0.75rem 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
 

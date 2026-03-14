@@ -19,11 +19,11 @@ import { Item } from '../../../../core/models/checkout.models';
           @for (item of items; track item.id) {
             <div class="item-card">
               <div class="item-card__name">{{ item.name }}</div>
-              <div class="item-card__price">{{ item.unitPrice | number: '1.2-2' }}p</div>
+              <div class="item-card__price">€{{ item.unitPrice | number: '1.2-2' }}</div>
               @if (item.specialOffer) {
                 <div class="item-card__offer">
                   🏷️ {{ item.specialOffer.quantityRequired }} for
-                  {{ item.specialOffer.offerPrice | number: '1.2-2' }}p
+                  €{{ item.specialOffer.offerPrice | number: '1.2-2' }}
                 </div>
               }
               <div class="item-card__actions">

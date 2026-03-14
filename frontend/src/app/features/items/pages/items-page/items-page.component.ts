@@ -57,12 +57,12 @@ import { Item, ItemRequest } from '../../../../core/models/checkout.models';
                 @for (item of items(); track item.id) {
                   <tr>
                     <td class="td--name">{{ item.name }}</td>
-                    <td>{{ item.unitPrice | number: '1.2-2' }}p</td>
+                    <td>€{{ item.unitPrice | number: '1.2-2' }}</td>
                     <td>
                       @if (item.specialOffer) {
                         <span class="offer-chip">
                           {{ item.specialOffer.quantityRequired }} for
-                          {{ item.specialOffer.offerPrice | number: '1.2-2' }}p
+                          €{{ item.specialOffer.offerPrice | number: '1.2-2' }}
                         </span>
                       } @else {
                         <span class="text-muted">—</span>

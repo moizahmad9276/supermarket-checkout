@@ -30,16 +30,16 @@ import { CheckoutResponse, Item } from '../../../../core/models/checkout.models'
           <app-basket-panel />
           <div class="checkout-actions">
             <button
-              class="btn btn--checkout"
-              [disabled]="basket.isEmpty() || calculating()"
-              (click)="onCheckout()"
-            >
-              @if (calculating()) {
-                <span class="spinner"></span> Calculating…
-              } @else {
-                🧾 Checkout
-              }
-            </button>
+  class="btn btn--checkout"
+  [disabled]="basket.isEmpty() || calculating()"
+  (click)="onCheckout()"
+>
+  @if (calculating()) {
+    <span class="spinner"></span> Processing payment…
+  } @else {
+    💳 Pay now
+  }
+</button>
             @if (receipt()) {
               <button class="btn btn--ghost" (click)="onNewOrder()">New Order</button>
             }
@@ -141,26 +141,36 @@ export class CheckoutPageComponent {
   }
 
   protected onCheckout(): void {
-    if (this.basket.isEmpty()) return;
+  if (this.basket.isEmpty()) return;
 
-    this.calculating.set(true);
+  const itemCount = this.basket.totalItems();
+  const confirmed = confirm(
+    `Confirm your order?\n\n` +
+    this.basket.entries().map(e => `  • ${e.item.name} x${e.quantity}`).join('\n') +
+    `\n\nTotal items: ${itemCount}`
+  );
 
-    const items = this.basket.entries().map((e) => ({
-      name: e.item.name,
-      quantity: e.quantity,
-    }));
+  if (!confirmed) return;
 
-    this.checkoutService.calculate({ items }).subscribe({
-      next: (response) => {
-        this.receipt.set(response);
-        this.calculating.set(false);
-        this.notification.success('Checkout complete! See your receipt.');
-      },
-      error: () => {
-        this.calculating.set(false);
-      },
-    });
-  }
+  this.calculating.set(true);
+
+  const items = this.basket.entries().map((e) => ({
+    name: e.item.name,
+    quantity: e.quantity,
+  }));
+
+  this.checkoutService.calculate({ items }).subscribe({
+    next: (response) => {
+      this.receipt.set(response);
+      this.basket.clear();
+      this.calculating.set(false);
+      this.notification.success('✅ Payment successful! Thank you for your order.');
+    },
+    error: () => {
+      this.calculating.set(false);
+    },
+  });
+}
 
   protected onNewOrder(): void {
     this.basket.clear();
